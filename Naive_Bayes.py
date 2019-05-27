@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn import metrics
-from sklearn.model_selection import KFold
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
@@ -9,17 +8,6 @@ from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import datetime
 import re
-
-
-def convert_date_to_week_day(data_frame, column_label):
-    dates = get_column_values(data_frame, column_label)
-    week_days = []
-    for date in dates:
-        day, month, year = (int(x) for x in date.split('.'))
-        ans = datetime.date(year, month, day)
-        week_days.append(ans.strftime("%A"))
-    week_days = np.asarray(week_days)
-    data_frame[column_label] = week_days
 
 
 def read_csv_file(csv_file_path):
@@ -31,16 +19,6 @@ def read_csv_file(csv_file_path):
     df = pd.read_csv(csv_file_path, delimiter=';')
     df.drop(df.columns[df.columns.str.contains('unnamed', case=False)], axis=1, inplace=True)
     return df
-
-
-def get_df_header(data_frame):
-    """
-
-    :param data_frame:
-    :return: list of csv data categories
-    """
-    column_header = list(data_frame)
-    return column_header
 
 
 def get_column_values(data_frame, column_label):
@@ -64,8 +42,26 @@ def drop_column(data_frame, column_label):
     return data_frame
 
 
+def convert_date_to_week_day(data_frame, column_label):
+    """
+
+    :param data_frame:
+    :param column_label:
+    :return:
+    """
+    dates = get_column_values(data_frame, column_label)
+    week_days = []
+    for date in dates:
+        day, month, year = (int(x) for x in date.split('.'))
+        ans = datetime.date(year, month, day)
+        week_days.append(ans.strftime("%A"))
+    week_days = np.asarray(week_days)
+    data_frame[column_label] = week_days
+
+
 def get_data_frame_as_list(data_frame):
     """
+    save the data frame in list
     :param data_frame:
     :return: data frame as list of rows in string format
     """
@@ -75,7 +71,7 @@ def get_data_frame_as_list(data_frame):
 
 def clean_text(data_frame_list):
     """
-
+    performing some processing on the data to make it more readable and predictable for the classifier
     :param data_frame_list:
     :return: data_frame_list after processing
     """
@@ -161,10 +157,8 @@ def get_plot_confusion_matrix(y_test, y_pred, classes, normalize=False, title=No
            title=title,
            ylabel='True label',
            xlabel='Predicted label')
-    # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")
-    # Loop over data dimensions and create text annotations.
     fmt = '.2f' if normalize else 'd'
     thresh = cm.max() / 2.
     for i in range(cm.shape[0]):
