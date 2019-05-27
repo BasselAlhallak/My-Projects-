@@ -12,21 +12,16 @@ if __name__ == "__main__":
 
     classification_classes = get_column_values(data_frame, 'label')
 
-    classes = np.unique(classification_classes, return_counts=True)[0]
-
-    data_frame = drop_column(data_frame, 'Buchungstext')
-    data_frame = drop_column(data_frame, 'Betrag')
-    data_frame = drop_column(data_frame, 'Auftragskonto')
-    data_frame = drop_column(data_frame, 'Buchungstag')
-    data_frame = drop_column(data_frame, 'Valutadatum')
-    data_frame = drop_column(data_frame, 'Waehrung')
-    data_frame = drop_column(data_frame, 'label')
+    categories_to_drop = ['Buchungstext', 'Betrag', 'Auftragskonto', 'Buchungstag', 'Valutadatum', 'Waehrung', 'label']
+    for category in categories_to_drop:
+        data_frame = drop_column(data_frame, category)
 
     data_frame_list = get_data_frame_as_list(data_frame)
 
     cleaned_data_frame_list = clean_text(data_frame_list)
 
     features = text_vectorizer(cleaned_data_frame_list)
+    
     weight_features(features)
 
     y_pred, y_test = perform_naive_bayes_classification(features, classification_classes)
@@ -34,4 +29,5 @@ if __name__ == "__main__":
     accuracy = check_classification_accuracy(y_pred, y_test)
     print('\nClassification accuracy: \n{}'.format(accuracy))
 
+    classes = np.unique(classification_classes, return_counts=True)[0]
     get_plot_confusion_matrix(y_test, y_pred, classes, title='Confusion matrix')
